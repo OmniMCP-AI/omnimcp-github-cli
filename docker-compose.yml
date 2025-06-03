@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  omnimcp-git:
+    image: omnimcp-git
+    container_name: omnimcp-git
+    build:
+      context: .
+      dockerfile: Dockerfile
+    privileged: true # 必须启用特权模式以支持 Docker-in-Docker
+    ports:
+      - "3333:3333" # 应用端口映射
+    env_file:
+      - .env # 从 .env 文件加载环境变量
+    network_mode: "host" # 使用宿主机网络模式，直接访问localhost
+    volumes:
+      - /home/ubuntu/data/logs/omnimcp-be:/app/logs

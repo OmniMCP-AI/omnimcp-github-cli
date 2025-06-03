@@ -1,0 +1,48 @@
+[project]
+name = "omnimcp-be"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "DannyM", email = "canhong5357003@gmail.com" }
+]
+dependencies = [
+    "fastapi[standard]>=0.115.12",
+    "structlog>=25.2.0",
+    "motor>=3.7.0",
+    "pydantic-settings>=2.8.1",
+    "mcp-proxy>=0.5.1",
+    "docker>=7.1.0",
+    "pyyaml>=6.0",
+    "pre-commit>=4.2.0",
+    "isort>=6.0.1",
+    "ruff>=0.11.4",
+    "mcp[cli]>=1.6.0",
+    "openai>=1.73.0",
+    "tenacity>=9.1.2",
+    "pyjwt>=2.10.1",
+    "pydash>=8.0.5",
+    "oss2>=2.19.1",
+    "httpx[socks]",
+    "python-slugify>=8.0.4",
+    "pandas>=2.2.3",
+]
+readme = "README.md"
+requires-python = ">= 3.8"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = []
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/omnimcp_be"]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
