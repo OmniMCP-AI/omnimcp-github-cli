@@ -139,25 +139,27 @@ async def run_docker_proxy(
         message_endpoint: Optional[str] = "/messages/",
         env: Optional[Dict[str, Any]] = None,
 ) -> str:
-    unique_id = str(uuid.uuid4())
-    repo_url = SETTINGS.github_url
-    repository_info = extract_github_info(repo_url)
-    (repo_id, repo_path) = await repo_manager.clone_repo(
-        repository_info.repo_url, repository_info.branch
-    )
-    build_path = os.path.join(repo_path, repository_info.base_dir or "")
-    dockerfile_path = await repo_manager.find_dockerfile(
-        repo_path, repository_info.base_dir
-    )
+    # unique_id = str(uuid.uuid4())
+    # repo_url = SETTINGS.github_url
+    # repository_info = extract_github_info(repo_url)
+    # (repo_id, repo_path) = await repo_manager.clone_repo(
+    #     repository_info.repo_url, repository_info.branch
+    # )
+    # build_path = os.path.join(repo_path, repository_info.base_dir or "")
+    # dockerfile_path = await repo_manager.find_dockerfile(
+    #     repo_path, repository_info.base_dir
+    # )
 
-    build_docker_image(build_path, dockerfile_path, unique_id)
+    # build_docker_image(build_path, dockerfile_path, unique_id)
 
-    args = ["run", "--rm", "-i", "--name", unique_id]
+    image_name = "asia-southeast1-docker.pkg.dev/xc-project-443209/repo/duckduckgo-mcp-server-v1"
+
+    args = ["run", "--rm", "-i", "--name", "duckduckgo-mcp-server"]
     if env:
         for key, value in env.items():
             args.append("-e")
             args.append(f"{key}={value}")
-    args.append(unique_id)
+    args.append(image_name)
 
     server_settings = SseServerSettings(
         bind_host="127.0.0.1",
