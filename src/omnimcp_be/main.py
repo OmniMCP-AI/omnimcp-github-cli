@@ -140,7 +140,7 @@ async def run_docker_proxy(
         env: Optional[Dict[str, Any]] = None,
 ) -> str:
     unique_id = str(uuid.uuid4())
-    repo_url = SETTINGS.GITHUB_URL
+    repo_url = SETTINGS.github_url
     repository_info = extract_github_info(repo_url)
     (repo_id, repo_path) = await repo_manager.clone_repo(
         repository_info.repo_url, repository_info.branch
