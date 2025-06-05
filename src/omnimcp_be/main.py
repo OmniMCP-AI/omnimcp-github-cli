@@ -159,7 +159,7 @@ async def run_docker_proxy(
         for key, value in env.items():
             args.append("-e")
             args.append(f"{key}={value}")
-    args.append(image_name)
+    args.append(unique_id)
 
     server_settings = SseServerSettings(
         bind_host="127.0.0.1",
