@@ -1,5 +1,6 @@
 import asyncio
 import uuid
+import json
 from typing import Optional, Dict, Any
 
 import uvicorn
@@ -137,10 +138,13 @@ async def run_sse_server(
 
 async def run_docker_proxy(
         message_endpoint: Optional[str] = "/messages/",
-        env: Optional[Dict[str, Any]] = None,
 ) -> str:
     unique_id = str(uuid.uuid4())
-    repo_url = "https://github.com/nickclyde/duckduckgo-mcp-server"
+    env_str = os.getenv("CONFIG", "{}")
+    env = json.loads(env_str)
+    repo_url = env.get("github_url")
+    if repo_url is None:
+        raise RuntimeError("Github URL must be configured")
     repository_info = extract_github_info(repo_url)
     (repo_id, repo_path) = await repo_manager.clone_repo(
         repository_info.repo_url, repository_info.branch
@@ -155,6 +159,7 @@ async def run_docker_proxy(
     # image_name = "asia-southeast1-docker.pkg.dev/xc-project-443209/repo/duckduckgo-mcp-server"
 
     args = ["run", "--rm", "-i", "--name", "duckduckgo-mcp-server"]
+
     if env:
         for key, value in env.items():
             args.append("-e")
