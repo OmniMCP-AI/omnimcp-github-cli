@@ -162,7 +162,7 @@ async def run_docker_proxy(
     args.append(unique_id)
 
     server_settings = SseServerSettings(
-        bind_host="127.0.0.1",
+        bind_host="0.0.0.0",
         port=3333,
         allow_origins=["*"],
     )
