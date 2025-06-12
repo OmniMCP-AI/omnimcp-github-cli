@@ -1,10 +1,15 @@
 import asyncio
 import uuid
 import json
-from typing import Optional, Dict, Any
+import os
+import time
+import jwt
+import hashlib
+import base64
+from datetime import datetime, timedelta
+from typing import Optional, Dict, Any, Literal, List
 
 import uvicorn
-import os
 import structlog
 import subprocess
 from mcp.client.session import ClientSession
@@ -18,6 +23,7 @@ from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.routing import Mount, Route
+from starlette.responses import Response, JSONResponse
 
 from omnimcp_be.setting import SETTINGS
 from omnimcp_be.mcp.server.repo_manager import RepoManager
@@ -27,13 +33,38 @@ repo_manager = RepoManager()
 
 logger = structlog.get_logger(__name__)
 
-
 def build_docker_image(
         build_path: str,
         dockerfile_path: str,
-        image_tag: str
+        image_tag: str,
+        registry_username: Optional[str] = "rolexai",
+        registry_password: Optional[str] = "dckr_pat_9_U23ZTfVFM9iAwUq1P8jSdvNvs"
 ) -> str:
     try:
+        # 如果提供了认证信息，先登录Docker Registry
+        if registry_username and registry_password:
+            registry = image_tag.split('/')[0] if '/' in image_tag else None
+            
+            if registry:
+                login_cmd = [
+                    "docker",
+                    "login",
+                    registry,
+                    "--username", registry_username,
+                    "--password", registry_password
+                ]
+                logger.info(f"Logging into Docker registry: {registry}")
+                
+                # 使用管道隐藏密码
+                subprocess.run(
+                    login_cmd,
+                    capture_output=True,
+                    text=True,
+                    check=True
+                )
+                logger.info("Docker registry login successful")
+
+        # 构建Docker镜像
         cmd = [
             "docker",
             "build",
@@ -67,6 +98,7 @@ def create_starlette_app(
     sse = SseServerTransport(endpoint)
 
     async def handle_sse(request: Request) -> None:
+        
         async with sse.connect_sse(
             request.scope,
             request.receive,
@@ -94,6 +126,7 @@ def create_starlette_app(
         middleware=middleware,
         routes=[
             Route("/sse", endpoint=handle_sse),
+            Route("/login", endpoint=login, methods=["POST"]),
             Mount("/messages/", app=sse.handle_post_message),
         ],
     )
@@ -141,6 +174,8 @@ async def run_docker_proxy(
 ) -> str:
     unique_id = str(uuid.uuid4())
     env_str = os.getenv("CONFIG", "{}")
+
+    logger.info(f"Starting docker proxy, unique_id: {unique_id}")
     env = json.loads(env_str)
     repo_url = env.get("github_url")
     if repo_url is None:
@@ -181,6 +216,7 @@ async def run_docker_proxy(
     logger.info(f"mcp stdio params: {stdio_params.model_dump_json()}")
 
     await run_sse_server(stdio_params, server_settings, message_endpoint)
+
 
 if __name__ == '__main__':
     asyncio.run(run_docker_proxy())

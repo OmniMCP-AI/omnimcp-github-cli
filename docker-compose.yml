@@ -12,6 +12,11 @@ services:
       - "3333:3333" # 应用端口映射
     env_file:
       - .env # 从 .env 文件加载环境变量
+    environment:
+      - JWT_SECRET=${JWT_SECRET:-your-secure-jwt-secret}
+      - REGISTRY_USERNAME=${REGISTRY_USERNAME:-}
+      - REGISTRY_PASSWORD=${REGISTRY_PASSWORD:-}
+      - API_KEY=${API_KEY:-}
     network_mode: "host" # 使用宿主机网络模式，直接访问localhost
     volumes:
       - /home/ubuntu/data/logs/omnimcp-be:/app/logs
