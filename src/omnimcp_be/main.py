@@ -62,6 +62,8 @@ def build_docker_image(
             )
             logger.info("Docker registry login successful")
 
+            time.sleep(10)
+
         # 构建Docker镜像
         cmd = [
             "docker",
