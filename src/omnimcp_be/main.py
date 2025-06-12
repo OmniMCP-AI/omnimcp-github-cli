@@ -125,7 +125,6 @@ def create_starlette_app(
         middleware=middleware,
         routes=[
             Route("/sse", endpoint=handle_sse),
-            Route("/login", endpoint=login, methods=["POST"]),
             Mount("/messages/", app=sse.handle_post_message),
         ],
     )
