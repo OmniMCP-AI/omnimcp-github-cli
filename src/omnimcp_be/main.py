@@ -47,7 +47,6 @@ def build_docker_image(
             login_cmd = [
                 "docker",
                 "login",
-                "https://registry-1.docker.io/v2/",
                 "--username", registry_username,
                 "--password", registry_password
             ]
