@@ -51,6 +51,8 @@ def build_docker_image(
                 "--username", registry_username,
                 "--password", registry_password
             ]
+
+            logger.info(f"Building Docker image, cmd: {' '.join(login_cmd)}")
             # 使用管道隐藏密码
             subprocess.run(
                 login_cmd,
