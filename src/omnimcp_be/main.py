@@ -43,26 +43,24 @@ def build_docker_image(
     try:
         # 如果提供了认证信息，先登录Docker Registry
         if registry_username and registry_password:
-            registry = image_tag.split('/')[0] if '/' in image_tag else None
-            
-            if registry:
-                login_cmd = [
-                    "docker",
-                    "login",
-                    registry,
-                    "--username", registry_username,
-                    "--password", registry_password
-                ]
-                logger.info(f"Logging into Docker registry: {registry}")
-                
-                # 使用管道隐藏密码
-                subprocess.run(
-                    login_cmd,
-                    capture_output=True,
-                    text=True,
-                    check=True
-                )
-                logger.info("Docker registry login successful")
+
+            login_cmd = [
+                "docker",
+                "login",
+                "https://registry-1.docker.io/v2/",
+                "--username", registry_username,
+                "--password", registry_password
+            ]
+            logger.info(f"Logging into Docker registry: {registry}")
+
+            # 使用管道隐藏密码
+            subprocess.run(
+                login_cmd,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            logger.info("Docker registry login successful")
 
         # 构建Docker镜像
         cmd = [
